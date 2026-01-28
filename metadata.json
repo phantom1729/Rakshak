@@ -1,0 +1,7 @@
+{
+  "name": "Rakshak Bot",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "description": ""
+}
