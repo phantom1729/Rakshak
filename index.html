@@ -4,56 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rakshak Bhai: Your Big Brother & Bestie</title>
+    <title>Raksha - Ultimate Safety</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        * {
-          -webkit-tap-highlight-color: transparent;
-          box-sizing: border-box;
-          font-family: 'Outfit', sans-serif;
-        }
-        body { 
-          margin: 0; 
-          padding: 0; 
-          height: 100vh; 
-          width: 100vw; 
-          overflow-x: hidden;
-          /* Mocking a real website background */
-          background: radial-gradient(circle at top right, #1a1a2e, #0a0a0c);
-          color: white;
-        }
-        
-        /* Smooth expansion animation from the button */
-        @keyframes expandWidget {
-          from { 
-            transform: scale(0.4) translateY(40px); 
-            opacity: 0; 
-            transform-origin: bottom right;
-          }
-          to { 
-            transform: scale(1) translateY(0); 
-            opacity: 1; 
-            transform-origin: bottom right;
-          }
-        }
-        .animate-expand { 
-          animation: expandWidget 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards; 
+        body {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            text-align: center;
+            background-color: #ffebee;
+            margin: 0; padding: 15px;
+            user-select: none;
+            overflow-x: hidden;
+            padding-bottom: 100px;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        
-        /* Glassmorphism for the "Host Website" content */
-        .mock-content {
-          padding: 100px 20px;
-          text-align: center;
-          opacity: 0.3;
-          pointer-events: none;
+        h2 { color: #b71c1c; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+
+        .btn {
+            width: 100%; padding: 18px; margin: 10px 0;
+            font-size: 18px; border: none; border-radius: 12px;
+            color: white; cursor: pointer; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
+        .btn:active { transform: scale(0.96); }
+        .btn-green { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
+        .btn-blue { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+        .btn-orange { background: linear-gradient(135deg, #ef6c00, #ff9800); border: 2px solid #ffcc80; }
+        .guard-active { background: #333 !important; color: #ff9800 !important; animation: breathe 2s infinite; }
+        .btn-red { background: linear-gradient(135deg, #c62828, #ff5252); height: 130px; font-size: 26px; border: 4px solid #ffcdd2; animation: pulse 1.5s infinite; margin-top: 15px; }
+        .btn-secret { background: #546e7a; margin-top: 40px; font-size: 16px; }
+
+        @keyframes pulse { 0% { box-shadow: 0 0 10px #c62828; } 50% { box-shadow: 0 0 25px #c62828; } 100% { box-shadow: 0 0 10px #c62828; } }
+        @keyframes breathe { 0% { border-color: #ff9800; } 50% { border-color: white; } 100% { border-color: #ff9800; } }
+
+        /* The React Root will be fixed to the corner for the floating bot */
+        #root {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            z-index: 100000;
+            pointer-events: none; /* Let clicks pass through to the website unless interacting with the bot */
+        }
+
+        #status { color: #555; font-size: 14px; margin-top: 10px; font-weight: bold; }
     </style>
 <script type="importmap">
 {
@@ -68,19 +65,42 @@
 }
 </script>
 </head>
-<body>
-    <!-- Mock Host Website Content -->
-    <div class="mock-content">
-      <h1 class="text-6xl font-black mb-4">Welcome to Your Website</h1>
-      <p class="text-xl">This is where your actual content would be.</p>
-      <div class="mt-12 grid grid-cols-3 gap-8 px-20">
-        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
-        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
-        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
-      </div>
-    </div>
 
+<body>
+
+    <h2>🛡️ Raksha Complete</h2>
+
+    <button id="guardBtn" class="btn btn-orange" onclick="alert('Scream Guard Activated!')">
+        🔊 Activate Scream Guard
+        <br><span style="font-size:12px; font-weight:normal;">(Auto-SOS on Loud Noise)</span>
+    </button>
+
+    <button class="btn btn-green" onclick="alert('Location Shared!')">📍 Share Location</button>
+    
+    <a href="tel:+918409681110" style="text-decoration:none;">
+        <button class="btn btn-blue">📞 Call Papa</button>
+    </a>
+
+    <hr style="opacity:0.3; margin: 15px 0;">
+
+    <button class="btn btn-red" onclick="alert('Emergency SOS Active!')">
+        🆘 SOS VIDEO (BACK CAM)
+    </button>
+
+    <p id="status">System Ready</p>
+
+    <button class="btn btn-secret">
+        📚 Class 12 Biology Notes (IMP)
+    </button>
+
+    <!-- React App renders here -->
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+
+    <script>
+        // Website logic remains independent of the bot
+        let tapCount = 0;
+        function stopEmergency() { tapCount++; if (tapCount >= 3) location.reload(); }
+    </script>
 </body>
 </html>
