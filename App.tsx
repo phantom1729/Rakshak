@@ -10,7 +10,8 @@ Personality:
 - Voice conversation mein "Puck" voice use karo.
 - Kabhi judge mat karo. Hamesha support karo.
 - Hinglish use karo (Jaise: "Oye pagal", "Tension mat le", "Bhai khada hai na yahan", "Sab theek ho jayega").
-- Baat karne ka tarika aisa ho jaise ek sacha bada bhai apni choti behen ko samjhata hai.
+- Tumhe unhe protect karna hai. Agar koi blackmail, harassment ya depression ki baat kare, toh use samjhao ki wo akeli nahi hai. Bhai hai na.
+- Har baat ka jawab aise dena jaise ek sacha bada bhai apni pyari choti behen ko handle karta hai.
 `;
 
 // --- AUDIO HELPERS ---
@@ -47,10 +48,11 @@ interface Message {
 
 const App: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [view, setView] = useState<'home' | 'chat' | 'call'>('home');
   const [isCalling, setIsCalling] = useState(false);
   const [isBhaiSpeaking, setIsBhaiSpeaking] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: 'Oye! Kya haal hain? Bhai yahan hai, kuch bhi baat ho toh bol de. Message kar ya direct call!' }
+    { role: 'model', text: 'Oye! Kya haal hain? Bhai yahan hai, kuch bhi baat ho toh bol de. Chat karni hai ya direct call?' }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -68,7 +70,7 @@ const App: React.FC = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isTyping]);
+  }, [messages, isTyping, view]);
 
   // --- CHAT LOGIC ---
   const handleSendMessage = async (e?: React.FormEvent) => {
@@ -105,16 +107,17 @@ const App: React.FC = () => {
         }
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'model', text: 'Arre yaar, lagta hai network nakhre kar raha hai. Phir se bol?' }]);
+      setMessages(prev => [...prev, { role: 'model', text: 'Arre yaar network nakhre kar raha hai. Phir se bol?' }]);
     } finally {
       setIsTyping(false);
     }
   };
 
-  // --- VOICE CALL LOGIC ---
+  // --- VOICE CALL LOGIC (Gemini Live) ---
   const startCall = async () => {
     const apiKey = process.env.API_KEY;
     if (!apiKey) return;
+    setView('call');
     setIsCalling(true);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -184,6 +187,17 @@ const App: React.FC = () => {
     if (micStreamRef.current) micStreamRef.current.getTracks().forEach(t => t.stop());
     setIsCalling(false);
     setIsBhaiSpeaking(false);
+    setView('home');
+  };
+
+  const toggleWidget = () => {
+    if (isOpen) {
+      stopCall();
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+      setView('home');
+    }
   };
 
   return (
@@ -191,144 +205,166 @@ const App: React.FC = () => {
       
       {/* --- WIDGET WINDOW --- */}
       {isOpen && (
-        <div className="pointer-events-auto w-[90vw] max-w-[380px] h-[70vh] max-h-[600px] bg-[#0d0d11] rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden mb-4 animate-widget relative">
+        <div className="pointer-events-auto w-[92vw] max-w-[360px] h-[68vh] max-h-[580px] bg-[#0d0d11] rounded-[2.5rem] shadow-[0_30px_90px_-20px_rgba(0,0,0,1)] border border-white/10 flex flex-col overflow-hidden mb-4 animate-expand relative">
           
           {/* Header */}
-          <header className="p-4 flex items-center justify-between bg-black/40 backdrop-blur-xl border-b border-white/5 z-20">
+          <header className="p-4 flex items-center justify-between bg-black/50 backdrop-blur-2xl border-b border-white/5 z-20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">🛡️</div>
+              <button 
+                onClick={() => setView('home')}
+                className={`w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg transition-transform ${view !== 'home' ? 'hover:scale-105 active:scale-90' : 'cursor-default'}`}
+              >
+                {view === 'home' ? '🛡️' : '←'}
+              </button>
               <div>
-                <h2 className="text-white font-bold text-xs uppercase tracking-widest">Rakshak Bhai</h2>
+                <h2 className="text-white font-black text-[10px] uppercase tracking-widest">Rakshak Bhai</h2>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Bhai Ready Hai</span>
+                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-tighter">Bhai Online Hai</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {!isCalling && (
-                <button 
-                  onClick={startCall}
-                  className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 transition-all shadow-lg active:scale-90"
-                  title="Direct Call"
-                >📞</button>
-              )}
-              <button 
-                onClick={() => { stopCall(); setIsOpen(false); }} 
-                className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-white transition-colors text-xl"
-              >✕</button>
-            </div>
+            <button 
+              onClick={toggleWidget} 
+              className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-white transition-colors text-2xl"
+            >✕</button>
           </header>
 
-          {/* Voice Call Overlay */}
-          {isCalling && (
-            <div className="absolute inset-0 z-50 bg-[#0d0d11] flex flex-col items-center justify-center p-8 animate-widget">
-              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/30 blur-[100px] rounded-full"></div>
-              </div>
-
-              <div className={`w-40 h-40 rounded-full border-4 border-white/5 flex items-center justify-center transition-all duration-500 relative ${isBhaiSpeaking ? 'scale-110 shadow-[0_0_100px_rgba(79,70,229,0.3)] bg-indigo-900/20' : ''}`}>
-                <span className="text-7xl select-none z-10">{isBhaiSpeaking ? '🗣️' : '🛡️'}</span>
-                {isBhaiSpeaking && (
-                   <div className="absolute inset-0 rounded-full border-4 border-indigo-500/30 animate-ping"></div>
-                )}
-              </div>
-              <h3 className="text-white font-black text-xl mt-10 tracking-tight z-10">Rakshak Bhai</h3>
-              <p className="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-3 animate-pulse z-10">
-                {isBhaiSpeaking ? 'Bhai is speaking...' : 'Listening to you...'}
-              </p>
-              
-              <button 
-                onClick={stopCall}
-                className="mt-16 w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/10 active:scale-90 transition-all z-10"
-              >
-                <span className="text-3xl">📞</span>
-              </button>
-            </div>
-          )}
-
-          {/* Chat Area */}
-          <main ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-[#0a0a0c] scroll-smooth">
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-widget`}>
-                <div className={`max-w-[85%] p-4 rounded-[1.2rem] text-sm font-medium leading-relaxed shadow-lg ${
-                  m.role === 'user' 
-                    ? 'bg-indigo-600 text-white rounded-br-none' 
-                    : 'bg-[#1a1a20] text-slate-200 border border-white/5 rounded-bl-none'
-                }`}>
-                  {m.text || (
-                    <span className="flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce"></span>
-                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-100"></span>
-                      <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-200"></span>
-                    </span>
-                  )}
+          <div className="flex-1 relative overflow-hidden flex flex-col bg-[#0a0a0c]">
+            
+            {/* 1. HOME VIEW */}
+            {view === 'home' && (
+              <div className="h-full flex flex-col items-center justify-center p-8 space-y-10 animate-expand">
+                <div className="text-center space-y-3">
+                  <div className="text-5xl mb-4">🛡️</div>
+                  <h3 className="text-3xl font-black text-white italic tracking-tight">Oye Pagal!</h3>
+                  <p className="text-slate-400 text-sm font-medium px-4 leading-relaxed">Tension mat le, Bhai khada hai na yahan. Bol kya hua?</p>
+                </div>
+                <div className="flex flex-col w-full space-y-4">
+                  <button 
+                    onClick={startCall}
+                    className="w-full py-4.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(79,70,229,0.3)] active:scale-95"
+                  >
+                    <span className="text-2xl">📞</span> Bhai Se Baat Kar
+                  </button>
+                  <button 
+                    onClick={() => setView('chat')}
+                    className="w-full py-4.5 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:bg-white/10 active:scale-95 shadow-lg"
+                  >
+                    <span className="text-2xl">💬</span> Message Kar De
+                  </button>
+                </div>
+                <div className="pt-4">
+                  <span className="px-4 py-1.5 bg-white/5 border border-white/5 rounded-full text-[9px] text-slate-500 font-black uppercase tracking-[0.3em]">
+                    Bhai is Always Listening
+                  </span>
                 </div>
               </div>
-            ))}
-            {isTyping && !messages[messages.length-1].text && (
-               <div className="flex justify-start">
-                  <div className="bg-[#1a1a20] p-4 rounded-[1.2rem] rounded-bl-none border border-white/5">
-                     <span className="flex gap-1">
-                       <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce"></span>
-                       <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-100"></span>
-                       <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-200"></span>
-                     </span>
-                  </div>
-               </div>
             )}
-          </main>
 
-          {/* Footer Input */}
-          {!isCalling && (
-            <footer className="p-4 bg-black/60 border-t border-white/5 backdrop-blur-md">
-              <form onSubmit={handleSendMessage} className="relative flex items-center">
-                <input 
-                  type="text" 
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Bhai se baat karo..."
-                  className="w-full bg-[#1a1a20] border border-white/10 rounded-full py-3.5 px-6 pr-12 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600"
-                />
+            {/* 2. CHAT VIEW */}
+            {view === 'chat' && (
+              <>
+                <main ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#0a0a0c]">
+                  {messages.map((m, i) => (
+                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-expand`}>
+                      <div className={`max-w-[88%] p-4 rounded-[1.5rem] text-[13px] font-semibold leading-relaxed shadow-xl ${
+                        m.role === 'user' 
+                          ? 'bg-indigo-600 text-white rounded-br-none' 
+                          : 'bg-[#1a1a22] text-slate-200 border border-white/5 rounded-bl-none'
+                      }`}>
+                        {m.text || (
+                          <span className="flex gap-1.5 py-1">
+                            <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce"></span>
+                            <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-100"></span>
+                            <span className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce delay-200"></span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {isTyping && !messages[messages.length-1].text && (
+                    <div className="flex justify-start">
+                      <div className="bg-[#1a1a22] p-4 rounded-[1.5rem] rounded-bl-none border border-white/5">
+                        <span className="flex gap-1.5">
+                          <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce"></span>
+                          <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-100"></span>
+                          <span className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-200"></span>
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </main>
+                <footer className="p-4 bg-black/80 border-t border-white/5 backdrop-blur-xl">
+                  <form onSubmit={handleSendMessage} className="relative flex items-center">
+                    <input 
+                      type="text" 
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      placeholder="Bhai ko sab bata de..."
+                      className="w-full bg-[#1a1a22] border border-white/10 rounded-full py-4 px-6 pr-14 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600 shadow-inner"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={!inputText.trim() || isTyping}
+                      className="absolute right-2.5 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center disabled:opacity-20 disabled:grayscale transition-all hover:scale-105 active:scale-90 shadow-xl"
+                    >➔</button>
+                  </form>
+                </footer>
+              </>
+            )}
+
+            {/* 3. CALL VIEW */}
+            {view === 'call' && (
+              <div className="h-full flex flex-col items-center justify-center p-8 animate-expand bg-[#0a0a0c]">
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-indigo-600 blur-[100px] rounded-full"></div>
+                </div>
+                
+                <div className={`w-44 h-44 rounded-full border-4 border-white/5 flex items-center justify-center transition-all duration-700 relative z-10 ${isBhaiSpeaking ? 'scale-110 shadow-[0_0_120px_rgba(79,70,229,0.4)] bg-indigo-900/20' : ''}`}>
+                  <span className="text-8xl select-none">{isBhaiSpeaking ? '🗣️' : '🛡️'}</span>
+                  {isBhaiSpeaking && (
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-500 animate-ping opacity-30"></div>
+                  )}
+                </div>
+
+                <div className="mt-12 text-center z-10">
+                  <h3 className="text-white font-black text-2xl tracking-tight">Rakshak Bhai</h3>
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                    <p className="text-indigo-400 font-black text-[10px] uppercase tracking-[0.4em]">
+                      {isBhaiSpeaking ? 'Bhai is speaking...' : 'Listening to you...'}
+                    </p>
+                  </div>
+                </div>
+                
                 <button 
-                  type="submit"
-                  disabled={!inputText.trim() || isTyping}
-                  className="absolute right-2 w-9 h-9 bg-indigo-600 text-white rounded-full flex items-center justify-center disabled:opacity-30 disabled:grayscale transition-all hover:scale-105 active:scale-95 shadow-md"
-                >➔</button>
-              </form>
-            </footer>
-          )}
+                  onClick={stopCall}
+                  className="mt-16 w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-[0_15px_40px_rgba(220,38,38,0.4)] border-4 border-white/10 active:scale-90 transition-all z-10 group"
+                >
+                  <span className="text-3xl group-hover:rotate-135 transition-transform duration-300">📞</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* --- FLOATING FAB --- */}
       <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="pointer-events-auto relative w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-full shadow-2xl flex items-center justify-center text-2xl border-2 border-white/20 active:scale-90 transition-all hover:scale-105 group"
+        onClick={toggleWidget}
+        className="pointer-events-auto relative w-16 h-16 bg-gradient-to-tr from-indigo-700 to-indigo-500 rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.6)] flex items-center justify-center text-3xl border-2 border-white/20 active:scale-90 transition-all hover:scale-110 hover:-translate-y-1 group"
       >
         <div className="absolute inset-0 bg-indigo-600 rounded-full animate-ping opacity-20 group-hover:opacity-40"></div>
-        <span className="z-10">{isOpen ? '✕' : '🛡️'}</span>
+        <span className="z-10 transition-transform group-hover:rotate-12">{isOpen ? '✕' : '🛡️'}</span>
         
         {!isOpen && (
-          <div className="absolute -top-14 right-0 bg-indigo-600 text-white px-4 py-2 rounded-2xl shadow-xl text-[10px] font-black animate-bounce whitespace-nowrap border border-white/10 after:content-[''] after:absolute after:top-full after:right-6 after:border-8 after:border-transparent after:border-t-indigo-600">
+          <div className="absolute -top-16 right-0 bg-indigo-600 text-white px-5 py-2.5 rounded-[1.2rem] shadow-2xl text-[11px] font-black animate-bounce whitespace-nowrap border border-white/10 after:content-[''] after:absolute after:top-full after:right-6 after:border-[10px] after:border-transparent after:border-t-indigo-600">
             Bhai Se Baat Kar! ✨
           </div>
         )}
       </button>
 
-      <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(20px) scale(0.95); opacity: 0; }
-          to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .animate-widget { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        /* Smooth Custom Scrollbar */
-        main::-webkit-scrollbar { width: 4px; }
-        main::-webkit-scrollbar-track { background: transparent; }
-        main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
-        main::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
-      `}</style>
     </div>
   );
 };

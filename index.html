@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rakshak Bhai: Calling Support</title>
+    <title>Rakshak Bhai: Your Big Brother & Bestie</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,31 +12,48 @@
     <style>
         * {
           -webkit-tap-highlight-color: transparent;
-          user-select: none;
+          box-sizing: border-box;
+          font-family: 'Outfit', sans-serif;
         }
-        html, body { 
-          background: #0a0a0c !important;
+        body { 
           margin: 0; 
           padding: 0; 
           height: 100vh; 
           width: 100vw; 
-          overflow: hidden; 
+          overflow-x: hidden;
+          /* Mocking a real website background */
+          background: radial-gradient(circle at top right, #1a1a2e, #0a0a0c);
           color: white;
         }
-        #root { width: 100%; height: 100%; }
         
-        @keyframes slideUp {
-          from { transform: translateY(30px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+        /* Smooth expansion animation from the button */
+        @keyframes expandWidget {
+          from { 
+            transform: scale(0.4) translateY(40px); 
+            opacity: 0; 
+            transform-origin: bottom right;
+          }
+          to { 
+            transform: scale(1) translateY(0); 
+            opacity: 1; 
+            transform-origin: bottom right;
+          }
         }
-        .animate-widget { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-expand { 
+          animation: expandWidget 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards; 
+        }
 
-        @keyframes pulse-custom {
-          0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.8; }
-          100% { transform: scale(1); opacity: 1; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        
+        /* Glassmorphism for the "Host Website" content */
+        .mock-content {
+          padding: 100px 20px;
+          text-align: center;
+          opacity: 0.3;
+          pointer-events: none;
         }
-        .pulse-active { animation: pulse-custom 2s infinite ease-in-out; }
     </style>
 <script type="importmap">
 {
@@ -51,6 +69,17 @@
 </script>
 </head>
 <body>
+    <!-- Mock Host Website Content -->
+    <div class="mock-content">
+      <h1 class="text-6xl font-black mb-4">Welcome to Your Website</h1>
+      <p class="text-xl">This is where your actual content would be.</p>
+      <div class="mt-12 grid grid-cols-3 gap-8 px-20">
+        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
+        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
+        <div class="h-40 bg-white/5 rounded-3xl border border-white/10"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
