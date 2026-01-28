@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rakshak Bhai: Calling Support</title>
+    <title>Raksha - Complete Safety</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,29 +13,22 @@
           -webkit-tap-highlight-color: transparent;
           user-select: none;
         }
-        html, body { 
-          background: #0a0a0c !important;
+        body { 
+          background: #ffebee;
           margin: 0; 
           padding: 0; 
-          height: 100vh; 
-          width: 100vw; 
-          overflow: hidden; 
-          color: white;
+          overflow-x: hidden;
         }
-        #root { width: 100%; height: 100%; }
-        
+        @keyframes strobe { 
+          0% { background: rgba(255, 0, 0, 0.5); } 
+          50% { background: rgba(0, 0, 255, 0.5); } 
+          100% { background: rgba(255, 0, 0, 0.5); } 
+        }
         @keyframes slideUp {
           from { transform: translateY(30px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
         .animate-widget { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        @keyframes pulse-custom {
-          0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.05); opacity: 0.8; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .pulse-active { animation: pulse-custom 2s infinite ease-in-out; }
     </style>
 <script type="importmap">
 {
