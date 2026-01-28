@@ -58,6 +58,11 @@ const App: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeSources = useRef<Set<AudioBufferSourceNode>>(new Set());
 
+  // Notify parent website about state changes (for iframe resizing)
+  useEffect(() => {
+    window.parent.postMessage({ type: 'rakshak-state', isOpen }, '*');
+  }, [isOpen]);
+
   // Initialize Chat
   useEffect(() => {
     const apiKey = process.env.API_KEY;
